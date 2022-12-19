@@ -1,7 +1,7 @@
 require("dotenv").config();
-
 const express = require("express");
-const { hashPassword } = require("./auth");
+
+const { hashPassword, verifyPassword, verifyToken } = require("./auth");
 
 const app = express();
 
@@ -13,20 +13,37 @@ const welcome = (req, res) => {
   res.send("Welcome to my favourite movie list");
 };
 
+const isItDwight = (req, res) => {
+  if (req.body.email === "dam.dam@gmail.com" && req.body.password === "tofu") {
+    res.send("Credentials are valid");
+  } else {
+    res.sendStatus(401);
+  }
+};
+
 app.get("/", welcome);
 
 const movieHandlers = require("./movieHandlers");
+const userHandlers = require("./userHandlers");
+
+app.post(
+  "/api/login",
+  userHandlers.getUserByEmailWithPasswordAndPassToNext,
+  verifyPassword
+);
+
+app.get("/api/users", userHandlers.getUsers);
+app.get("/api/users/:id", userHandlers.getUserById);
 
 app.get("/api/movies", movieHandlers.getMovies);
 app.get("/api/movies/:id", movieHandlers.getMovieById);
+
+app.use(verifyToken);
 app.post("/api/movies", movieHandlers.postMovie);
 app.put("/api/movies/:id", movieHandlers.updateMovie);
 app.delete("/api/movies/:id", movieHandlers.deleteMovie);
 
-const userHandlers = require("./userHandlers");
-
-app.get("/api/users", userHandlers.getUsers);
-app.get("/api/users/:id", userHandlers.getUserById);
+app.post("/api/login", isItDwight);
 app.post("/api/users", hashPassword, userHandlers.postUser);
 app.put("/api/users/:id", userHandlers.updateUser);
 app.delete("/api/users/:id", userHandlers.deleteUser);
