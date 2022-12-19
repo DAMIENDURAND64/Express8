@@ -71,9 +71,22 @@ const verifyToken = (req, res, next) => {
     res.sendStatus(401);
   }
 };
+const verifyId = (req, res, next) => {
+  try {
+    const authorizationId = +req.params.id;
+    if (authorizationId !== req.payload.sub) {
+      throw new error("Forbidden");
+    }
+    next();
+  } catch (err) {
+    console.error(err);
+    res.sendStatus(403);
+  }
+};
 
 module.exports = {
   hashPassword,
   verifyPassword,
   verifyToken,
+  verifyId,
 };

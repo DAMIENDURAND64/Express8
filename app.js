@@ -1,7 +1,12 @@
 require("dotenv").config();
 const express = require("express");
 
-const { hashPassword, verifyPassword, verifyToken } = require("./auth");
+const {
+  hashPassword,
+  verifyPassword,
+  verifyToken,
+  verifyId,
+} = require("./auth");
 
 const app = express();
 
@@ -45,8 +50,9 @@ app.delete("/api/movies/:id", movieHandlers.deleteMovie);
 
 app.post("/api/login", isItDwight);
 app.post("/api/users", hashPassword, userHandlers.postUser);
-app.put("/api/users/:id", userHandlers.updateUser);
-app.delete("/api/users/:id", userHandlers.deleteUser);
+
+app.put("/api/users/:id", verifyId, userHandlers.updateUser);
+app.delete("/api/users/:id", verifyId, userHandlers.deleteUser);
 
 app.listen(port, (err) => {
   if (err) {
